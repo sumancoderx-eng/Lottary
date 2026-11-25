@@ -115,17 +115,15 @@ header .badge{background:none;border:none;padding:0;border-radius:0;color:#fff;f
 /* লটারী শেষে ফুল-স্ক্রিন ফ্লাশ, বাঁকা অভিনন্দন লেখা ও ফুলের পাপড়ি */
 #congrats{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:90;pointer-events:none;text-align:center;padding:20px}
 #congrats.show{display:flex}
-#congrats::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,#fff 0,#fffbd0 38%,#ffe066 75%,#ffc233 100%);opacity:0}
-#congrats.show::before{animation:cgFlash 4.8s linear forwards}
+#congrats::before{content:"";display:none;position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,#fff 0,#fffbd0 38%,#ffe066 75%,#ffc233 100%);opacity:0}
 @keyframes cgFlash{0%{opacity:0}6%{opacity:.97}17%{opacity:.35}28%{opacity:.97}40%{opacity:.35}52%{opacity:.95}64%{opacity:.4}76%{opacity:.75}100%{opacity:0}}
 .cg-text{position:relative;display:flex;flex-direction:column;gap:4px;opacity:0;transform:rotate(-7deg);
-  filter:drop-shadow(0 4px 5px rgba(125,10,18,.6)) drop-shadow(0 0 18px rgba(125,10,18,.35)) drop-shadow(0 0 34px rgba(255,255,255,.9))}
-.cg-big,.cg-sub{color:transparent;background:linear-gradient(180deg,#fffef2 0,#ffe45c 45%,#ff9f1c 100%);-webkit-background-clip:text;background-clip:text;
-  font-weight:800}
+  filter:drop-shadow(0 4px 5px rgba(80,45,0,.6))}
+.cg-big,.cg-sub{color:transparent;background:linear-gradient(180deg,#ffe98a 0,#f7bf17 48%,#b07200 100%);-webkit-background-clip:text;background-clip:text;font-weight:800}
 .cg-big{font-size:clamp(56px,13vw,170px);line-height:1.15}
 .cg-sub{font-size:clamp(26px,6vw,80px);line-height:1.3}
 #congrats.show .cg-text{animation:cgText 4.8s ease-in-out forwards}
-@keyframes cgText{0%{opacity:0;transform:rotate(-7deg) scale(.5)}8%{opacity:1;transform:rotate(-7deg) scale(1.08)}17%{opacity:.4;transform:rotate(-7deg) scale(1)}28%{opacity:1}40%{opacity:.4}52%{opacity:1}64%{opacity:.45}76%{opacity:1;transform:rotate(-7deg) scale(1.03)}100%{opacity:0;transform:rotate(-7deg) scale(1.12)}}
+@keyframes cgText{0%{opacity:0;transform:rotate(-7deg) scale(.6)}12%{opacity:1;transform:rotate(-7deg) scale(1.05)}24%{opacity:.6;transform:rotate(-7deg) scale(1)}36%{opacity:1}80%{opacity:1}100%{opacity:0;transform:rotate(-7deg) scale(1.1)}}
 #petals{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:95}
 .petal{position:absolute;top:-40px;will-change:transform;animation:petalFall var(--dur) linear var(--delay) forwards}
 .petal i{display:block;width:var(--s);height:calc(var(--s)*1.35);border-radius:150% 0 150% 0;background:var(--c);
@@ -143,6 +141,11 @@ header .badge{background:none;border:none;padding:0;border-radius:0;color:#fff;f
 .pdf-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
 .pdf-item{border:1px solid #444;padding:6px 0;text-align:center;font-weight:700;font-size:15px;border-radius:3px}
 .pdf-foot{position:absolute;left:40px;right:40px;bottom:22px;display:flex;justify-content:space-between;font-size:13px;color:#555;border-top:1px solid #ccc;padding-top:6px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:12px;font-weight:700;color:var(--green);min-height:16px;margin-top:3px;line-height:1.2}
+.num-card.wait{background:#fff8e1;color:#7a4b00;border:2.5px solid var(--gold)}
+.wait-head{grid-column:1/-1;margin-top:6px;padding:6px 12px;font-weight:800;font-size:15px;color:#7a4b00;background:#fff3d1;border-left:5px solid var(--gold);border-radius:6px}
+.pdf-sec{font-weight:800;font-size:17px;color:#14532d;margin:0 0 8px;padding-left:8px;border-left:5px solid #e0a82e}
 </style>
 </head>
 <body>
@@ -180,17 +183,24 @@ header .badge{background:none;border:none;padding:0;border-radius:0;color:#fff;f
     <div class="wheel-container"><div id="wheel"></div><div class="hub"></div></div>
     <div class="side">
       <button id="startBtn" class="btn-modern" onclick="startLottery()">লটারী শুরু করুন</button>
-      <div class="counter">নির্বাচিত: <b id="drawn">০</b> জন</div>
+      <div class="counter">নির্বাচিত: <b id="drawn">০</b> জন<span id="wcnt" hidden> · অপেক্ষমাণ: <b id="drawnW">০</b> জন</span></div>
     </div>
   </div>
   <div class="col right">
   <div class="input-group">
     <label for="totalF">মোট কৃষক</label>
-    <input type="number" id="totalF" value="0" min="0">
+    <input type="number" id="totalF" value="0" min="0" oninput="updateWaitHint()">
   </div>
-  <div class="input-group">
-    <label for="winnerC">বিজয়ী সংখ্যা</label>
-    <input type="number" id="winnerC" value="0" min="0">
+  <div class="row2">
+    <div class="input-group">
+      <label for="winnerC">বিজয়ী সংখ্যা</label>
+      <input type="number" id="winnerC" value="0" min="0" oninput="updateWaitHint()">
+    </div>
+    <div class="input-group">
+      <label for="waitP">অপেক্ষমাণ (%)</label>
+      <input type="number" id="waitP" value="0" min="0" max="100" step="any" oninput="updateWaitHint()">
+      <div class="hint" id="waitHint"></div>
+    </div>
   </div>
   </div>
 </div>
@@ -265,15 +275,36 @@ function rainPetals() {
   setTimeout(() => { box.innerHTML = ''; }, 12500);
 }
 let winners = [];
+let waiting = [];
+let waitPct = 0;
+// অপেক্ষমাণ সংখ্যা = বিজয়ী সংখ্যার শতাংশ (পূর্ণসংখ্যায় ওপরের দিকে), মোট কৃষকের বেশি হবে না
+function calcWait() {
+  const total = parseInt(document.getElementById('totalF').value) || 0;
+  const count = parseInt(document.getElementById('winnerC').value) || 0;
+  const pct = parseFloat(document.getElementById('waitP').value) || 0;
+  let n = Math.ceil(count * pct / 100);
+  const room = Math.max(0, total - count);
+  return Math.min(n, room);
+}
+function updateWaitHint() {
+  const total = parseInt(document.getElementById('totalF').value) || 0;
+  const count = parseInt(document.getElementById('winnerC').value) || 0;
+  const pct = parseFloat(document.getElementById('waitP').value) || 0;
+  const raw = Math.ceil(count * pct / 100), n = calcWait();
+  const h = document.getElementById('waitHint');
+  h.textContent = pct > 0 ? ('= ' + toBN(n) + ' জন' + (raw > n ? ' (সীমিত)' : '')) : '';
+}
 // সব কার্ড যেন স্ক্রল ছাড়াই এক স্ক্রিনে ধরে, সেই অনুযায়ী কার্ডের মাপ ঠিক করে
-function fitCards(resDiv, container, n) {
+function fitCards(resDiv, container, count, wait) {
+  const n = count + wait;
   const gap = n > 150 ? 5 : 8;
-  const W = container.clientWidth - 24, H = container.clientHeight - 24;
+  const W = container.clientWidth - 24;
+  const H = container.clientHeight - 24 - (wait > 0 ? 44 : 0);
+  const rowsFor = c => Math.ceil(count / c) + Math.ceil(wait / c);
   let w = 100;
   for (; w > 24; w--) {
     const cols = Math.max(1, Math.floor((W + gap) / (w + gap)));
-    const rows = Math.ceil(n / cols);
-    if (rows * (w / 1.5 + gap) - gap <= H) break;
+    if (rowsFor(cols) * (w / 1.5 + gap) - gap <= H) break;
   }
   const cols = Math.max(1, Math.floor((W + gap) / (w + gap)));
   resDiv.style.setProperty('--card-w', w + 'px');
@@ -281,43 +312,61 @@ function fitCards(resDiv, container, n) {
   resDiv.style.setProperty('--gap', gap + 'px');
   resDiv.style.setProperty('--font-size', Math.max(11, Math.round(w * 0.36)) + 'px');
 }
-const toBN = n => n.toString().replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[d]);
-
 function startLottery() {
   const upa = document.getElementById('upazila').value;
   const uni = document.getElementById('union').value;
   const total = parseInt(document.getElementById('totalF').value);
   const count = parseInt(document.getElementById('winnerC').value);
+  const pct = parseFloat(document.getElementById('waitP').value) || 0;
 
   if (!upa || !uni) { alert("উপজেলা এবং ইউনিয়ন নির্বাচন করুন!"); return; }
+  if (!(count > 0)) { alert("বিজয়ী সংখ্যা দিন!"); return; }
   if (count > total) { alert("বিজয়ী সংখ্যা বেশি হতে পারে না!"); return; }
+  if (pct < 0 || pct > 100) { alert("অপেক্ষমাণের শতাংশ ০ থেকে ১০০ এর মধ্যে হতে হবে!"); return; }
 
+  const waitN = calcWait();
   const resDiv = document.getElementById('results');
   const container = document.getElementById('results-container');
-  fitCards(resDiv, container, count);
-  resDiv.innerHTML = ""; winners = [];
+  fitCards(resDiv, container, count, waitN);
+  resDiv.innerHTML = ""; winners = []; waiting = []; waitPct = pct;
   document.getElementById('drawn').innerText = toBN(0);
+  document.getElementById('drawnW').innerText = toBN(0);
+  document.getElementById('wcnt').hidden = waitN === 0;
   document.getElementById('pdfBtn').style.display = 'none';
 
   document.getElementById('wheel').classList.add('spinning');
   document.getElementById('startBtn').disabled = true;
 
+  // একই পুল থেকে আগে বিজয়ী, তারপর অপেক্ষমাণ (কেউ দুই তালিকায় আসবে না)
   let pool = Array.from({length: total}, (_, i) => i + 1);
   for (let i = 0; i < count; i++) {
     let idx = Math.floor(Math.random() * pool.length);
     winners.push(pool.splice(idx, 1)[0]);
   }
+  for (let i = 0; i < waitN; i++) {
+    let idx = Math.floor(Math.random() * pool.length);
+    waiting.push(pool.splice(idx, 1)[0]);
+  }
 
-  winners.forEach((num, i) => {
+  const all = winners.concat(waiting);
+  all.forEach((num, i) => {
     setTimeout(() => {
+      const isWait = i >= count;
+      if (isWait && i === count) {
+        const head = document.createElement('div');
+        head.className = 'wait-head';
+        head.innerText = `অপেক্ষমাণ তালিকা (${toBN(waitN)} জন)`;
+        resDiv.appendChild(head);
+      }
       const card = document.createElement('div');
-      card.className = `num-card c${(i % 6) + 1}`;
+      card.className = isWait ? 'num-card wait' : `num-card c${(i % 6) + 1}`;
       card.innerText = toBN(num);
       resDiv.appendChild(card);
-      document.getElementById('drawn').innerText = toBN(i + 1);
+      if (isWait) document.getElementById('drawnW').innerText = toBN(i - count + 1);
+      else document.getElementById('drawn').innerText = toBN(i + 1);
       container.scrollTop = container.scrollHeight;
 
-      if (i === winners.length - 1) {
+      if (i === all.length - 1) {
         document.getElementById('wheel').classList.remove('spinning');
         document.getElementById('startBtn').disabled = false;
         document.getElementById('pdfBtn').style.display = 'block';
@@ -338,18 +387,23 @@ async function downloadPDF() {
     const upa = document.getElementById('upazila').value;
     const uni = document.getElementById('union').value;
     const total = toBN(document.getElementById('totalF').value);
-    const win = toBN(document.getElementById('winnerC').value);
+    const win = toBN(winners.length);
+    const waitLine = waiting.length ? `<div><strong>অপেক্ষমাণ সংখ্যা:</strong> ${toBN(waiting.length)} (${toBN(waitPct)}%)</div>` : '';
     const date = toBN(new Date().toLocaleDateString('bn-BD'));
 
-    const sorted = [...winners].sort((a, b) => a - b);
-    const pages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
+    // স্ক্রিনের সিরিয়ালেই: আগে বিজয়ী তালিকা, তারপর অপেক্ষমাণ তালিকা
+    const sections = [];
+    for (let k = 0; k < winners.length; k += PER_PAGE) sections.push({ t: 'বিজয়ী তালিকা', list: winners.slice(k, k + PER_PAGE) });
+    for (let k = 0; k < waiting.length; k += PER_PAGE) sections.push({ t: 'অপেক্ষমাণ তালিকা', list: waiting.slice(k, k + PER_PAGE) });
+    const pages = Math.max(1, sections.length);
     const holder = document.getElementById('hidden-report');
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p', 'mm', 'a4');
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
 
     for (let p = 0; p < pages; p++) {
-      const chunk = sorted.slice(p * PER_PAGE, (p + 1) * PER_PAGE);
+      const sec = sections[p] || { t: 'বিজয়ী তালিকা', list: [] };
+      const chunk = sec.list;
       holder.innerHTML = `
         <div class="pdf-page">
           <div class="pdf-header">
@@ -359,8 +413,9 @@ async function downloadPDF() {
           <div class="pdf-meta">
             <div><div><strong>উপজেলা:</strong> ${upa}</div><div><strong>ইউনিয়ন:</strong> ${uni}</div></div>
             <div style="text-align:right"><div><strong>মোট কৃষক:</strong> ${total}</div>
-              <div><strong>বিজয়ী সংখ্যা:</strong> ${win}</div><div><strong>তারিখ:</strong> ${date}</div></div>
+              <div><strong>বিজয়ী সংখ্যা:</strong> ${win}</div>${waitLine}<div><strong>তারিখ:</strong> ${date}</div></div>
           </div>
+          <div class="pdf-sec">${sec.t}</div>
           <div class="pdf-grid">${chunk.map(n => `<div class="pdf-item">${toBN(n)}</div>`).join('')}</div>
           <div class="pdf-foot"><span>${uni}, ${upa}</span><span>পৃষ্ঠা ${toBN(p + 1)} / ${toBN(pages)}</span></div>
         </div>`;
