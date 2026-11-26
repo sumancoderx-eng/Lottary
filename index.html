@@ -119,7 +119,7 @@ header .badge{background:none;border:none;padding:0;border-radius:0;color:#fff;f
 #congrats.show::before{animation:cgFlash 4.8s linear forwards}
 @keyframes cgFlash{0%{opacity:0}6%{opacity:.97}17%{opacity:.35}28%{opacity:.97}40%{opacity:.35}52%{opacity:.95}64%{opacity:.4}76%{opacity:.75}100%{opacity:0}}
 .cg-text{position:relative;display:flex;flex-direction:column;gap:4px;opacity:0;transform:rotate(-7deg);
-  filter:drop-shadow(0 4px 5px rgba(125,10,18,.6)) drop-shadow(0 0 18px rgba(125,10,18,.35)) drop-shadow(0 0 34px rgba(255,255,255,.9))}
+  filter:drop-shadow(0 4px 5px rgba(125,10,18,.6)) drop-shadow(0 0 18px rgba(125,10,18,.35))}
 .cg-big,.cg-sub{color:transparent;background:linear-gradient(180deg,#fffef2 0,#ffe45c 45%,#ff9f1c 100%);-webkit-background-clip:text;background-clip:text;
   font-weight:800}
 .cg-big{font-size:clamp(56px,13vw,170px);line-height:1.15}
@@ -341,7 +341,7 @@ async function downloadPDF() {
     const win = toBN(document.getElementById('winnerC').value);
     const date = toBN(new Date().toLocaleDateString('bn-BD'));
 
-    const sorted = [...winners].sort((a, b) => a - b);
+    const sorted = [...winners]; // স্ক্রিনে যে সিরিয়ালে এসেছে, পিডিএফেও সেই সিরিয়াল
     const pages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
     const holder = document.getElementById('hidden-report');
     const { jsPDF } = window.jspdf;
